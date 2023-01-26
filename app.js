@@ -31,6 +31,11 @@ app.get('/movies', (req, res) => {
     let totalPage = Math.ceil(totalPostLength / 10);
     // console.log(totalPage);
 
+    // 입력받은 페이지가 총 페이지를 넘었을때 error
+    if (totalPage < currentPage) {
+        res.send({ error: '마지막 페이지입니다. ' });
+    }
+
     // 화면에 보여줄 그룹 : 한 그룹당 6개 페이지 띄우기
     let pageGroup = Math.ceil(currentPage / 6);
 

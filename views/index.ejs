@@ -33,12 +33,13 @@
         let page = new URLSearchParams(location.search).get('page');
         console.log(page);
 
-        if (page < 0) {
-            alert('첫 페이지입니다.');
-            window.location.href = '/';
-        }
         if (page === null) {
             page = 1;
+        }
+
+        if (page <= 0) {
+            alert('첫 페이지입니다.');
+            window.location.href = '/';
         }
 
         fetch(`http://localhost:5000/movies?page=${page}`)
@@ -46,7 +47,11 @@
                 return response.json();
             })
             .then((data) => {
-                // console.log(data);
+                // 총페이지를 넘어서 호출되었을 때
+                if (data.error) {
+                    alert(data.error);
+                    window.location.href = `/?page=${page - 1}`;
+                }
 
                 // 1. 테이블에 게시글 10개 붙이기
                 const html = data.movies.map((movie) => {
