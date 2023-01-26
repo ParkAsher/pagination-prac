@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css" />
+        <title>Document</title>
+        <style>
+            li {
+                display: inline-block;
+                margin-left: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>영화 목록 보기</h1>
+        <table id="table" class="table" border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>제목</th>
+                    <th>등록자</th>
+                    <th>조회수</th>
+                    <th>등록일</th>
+                </tr>
+            </thead>
+            <tbody id="movies"></tbody>
+        </table>
+        <ul id="pagination"></ul>
+    </body>
+    <script>
+        let page = new URLSearchParams(location.search).get('page');
+        console.log(page);
+
+        if (page < 0) {
+            alert('첫 페이지입니다.');
+            window.location.href = '/';
+        }
+        if (page === null) {
+            page = 1;
+        }
+
+        fetch(`http://localhost:5000/movies?page=${page}`)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                // console.log(data);
+
+                // 1. 테이블에 게시글 10개 붙이기
+                const html = data.movies.map((movie) => {
+                    return `
+                        <tr>
+                            <td>${movie.id}</td>
+                            <td>${movie.movie_title}</td>
+                            <td>${movie.user_id}</td>
+                            <td>${movie.hit_count}</td>
+                            <td>${movie.created_at}</td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('movies').innerHTML = html.join('');
+
+                // 2. 페이지네이션 버튼 생성
+                const firstPage = data.pageInfo.firstPage;
+                const lastPage = data.pageInfo.lastPage;
+                const pages = [];
+
+                // prev button
+                let prev = `
+                    <li><a href='?page=${Number(page) - 1}'>prev</a></li>
+                `;
+                pages.push(prev);
+
+                // pages button
+                for (let i = firstPage; i <= lastPage; i++) {
+                    let temp = `
+                        <li><a href='?page=${i}'>${i}</a></li>
+                    `;
+                    pages.push(temp);
+                }
+
+                // next button
+                let next = `
+                    <li><a href='?page=${Number(page) + 1}'>next</a></li>
+                `;
+                pages.push(next);
+
+                document.getElementById('pagination').innerHTML = pages.join('');
+            });
+    </script>
+</html>
